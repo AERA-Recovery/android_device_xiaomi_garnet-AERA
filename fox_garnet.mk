@@ -1,6 +1,6 @@
 #
 #	This file is part of the OrangeFox Recovery Project
-# 	Copyright (C) 2024-2025 The OrangeFox Recovery Project
+# 	Copyright (C) 2024-2026 The OrangeFox Recovery Project
 #
 #	OrangeFox is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -59,4 +59,7 @@ OF_ENABLE_ALL_PARTITION_TOOLS := 1
 
 # enable the FRP addon
 OF_ENABLE_FRP_ADDON := 1
+
+# dmctl
+OF_USE_DMCTL := 1
 #
