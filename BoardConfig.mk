@@ -1,7 +1,7 @@
 #
 # Copyright 2017 The Android Open Source Project
 #
-# Copyright (C) 2024 The OrangeFox Recovery Project
+# Copyright (C) 2024-2026 The OrangeFox Recovery Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,9 +35,13 @@ TARGET_OTA_ASSERT_DEVICE := garnet
 TW_FRAMERATE := 120
 
 # Vibrator
-TW_SUPPORT_INPUT_AIDL_HAPTICS := true
-TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
-TW_SUPPORT_INPUT_AIDL_HAPTICS_FQNAME := "IVibrator/vibratorfeature"
+ifeq ($(FIXED_HAPTICS),1)
+  TW_SUPPORT_INPUT_AIDL_HAPTICS := true
+  TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
+  TW_SUPPORT_INPUT_AIDL_HAPTICS_FQNAME := "IVibrator/vibratorfeature"
+else
+   TW_NO_HAPTICS := true
+endif
 
 TARGET_RECOVERY_DEVICE_MODULES += libexpat
 RECOVERY_LIBRARY_SOURCE_FILES += $(TARGET_OUT_SHARED_LIBRARIES)/libexpat.so
