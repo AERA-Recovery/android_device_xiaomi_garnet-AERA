@@ -1,6 +1,6 @@
 #
 #	This file is part of the OrangeFox Recovery Project
-# 	Copyright (C) 2024-2025 The OrangeFox Recovery Project
+# 	Copyright (C) 2024-2026 The OrangeFox Recovery Project
 #
 #	OrangeFox is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ fetch_sm84xx_common_repo() {
 
 	if [ ! -d $common ]; then
 		echo "Cloning $URL ... to $common";
-		git clone $URL -b fox_12.1 $common;
+		git clone $URL -b fox_16.0 $common;
 	else
 		local here=$PWD;
 		echo "Device common repository: \"$common\" found. Seeing whether there are updates ...";
@@ -38,13 +38,15 @@ fetch_sm84xx_common_repo() {
 }
 
 fox_get_target_device() {
-local chkdev=$(echo "$BASH_SOURCE" | grep -w \"$FDEVICE\")
-   if [ -n "$chkdev" ]; then 
-      FOX_BUILD_DEVICE="$FDEVICE"
-   else
-      chkdev=$(set | grep BASH_ARGV | grep -w \"$FDEVICE\")
-      [ -n "$chkdev" ] && FOX_BUILD_DEVICE="$FDEVICE"
-   fi
+  if echo "$BASH_SOURCE" | grep -q "/$FDEVICE/"; then
+      FOX_BUILD_DEVICE="$FDEVICE";
+  elif set | grep BASH_ARGV | grep -w \"$FDEVICE\"; then
+      FOX_BUILD_DEVICE="$FDEVICE";
+  elif echo "${BASH_SOURCE[0]}" | grep -q "/$FDEVICE/"; then
+      FOX_BUILD_DEVICE="$FDEVICE";
+  elif echo "$0" | grep -q "$FDEVICE"; then
+      FOX_BUILD_DEVICE="$FDEVICE";
+  fi
 }
 
 if [ -z "$1" -a -z "$FOX_BUILD_DEVICE" ]; then
