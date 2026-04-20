@@ -1,6 +1,6 @@
 #
 #	This file is part of the OrangeFox Recovery Project
-# 	Copyright (C) 2024-2025 The OrangeFox Recovery Project
+# 	Copyright (C) 2024-2026 The OrangeFox Recovery Project
 #
 #	OrangeFox is free software: you can redistribute it and/or modify
 #	it under the terms of the GNU General Public License as published by
@@ -29,13 +29,6 @@ TW_INCLUDE_LIBRESETPROP := true
 TW_EXTRA_LANGUAGES      := true
 TW_EXCLUDE_APEX         := true
 TW_INCLUDE_FASTBOOTD    := true
-
-# API
-PRODUCT_SHIPPING_API_LEVEL  := 31
-BOARD_SHIPPING_API_LEVEL := 31
-BOARD_API_LEVEL := 31
-SHIPPING_API_LEVEL := 31
-PRODUCT_TARGET_VNDK_VERSION := 33
 
 # OEM otacert
 PRODUCT_EXTRA_RECOVERY_KEYS += \
