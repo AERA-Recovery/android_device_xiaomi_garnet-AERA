@@ -1,0 +1,19 @@
+# Copyright (c) 2021 Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+
+on property:vendor.sys.listeners.registered=true
+    start vendor.keymint-qti
+
+on property:init.svc.vendor.qseecomd=running
+    start vendor.keymint-qti
+
+service vendor.keymint-qti /vendor/bin/hw/android.hardware.security.keymint-service-qti
+    class early_hal
+    user system
+    group system drmrpc
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/system/lib64:/system_ext/lib64:/sbin
+    setenv LD_PRELOAD /system/lib64/android.hardware.security.rkp-V3-ndk.so
+    disabled
+    seclabel u:r:recovery:s0
+#
