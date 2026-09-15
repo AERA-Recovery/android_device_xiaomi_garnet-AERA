@@ -72,4 +72,13 @@ BOARD_USES_QCOM_HARDWARE := true
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
 TW_USE_LEGACY_BATTERY_SERVICES := true
+
+TARGET_RECOVERY_DEVICE_MODULES += android.hardware.security.keymint-V1-ndk
+RECOVERY_LIBRARY_SOURCE_FILES += $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.security.keymint-V1-ndk.so
+BOARD_RECOVERY_IMAGE_PREPARE += mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/system/lib64; ln -sf android.hardware.security.keymint-V1-ndk.so $(TARGET_RECOVERY_ROOT_OUT)/system/lib64/android.hardware.security.keymint-V1-ndk_platform.so; ln -sf android.hardware.security.secureclock-V1-ndk.so $(TARGET_RECOVERY_ROOT_OUT)/system/lib64/android.hardware.security.secureclock-V1-ndk_platform.so; ln -sf android.hardware.security.sharedsecret-V1-ndk.so $(TARGET_RECOVERY_ROOT_OUT)/system/lib64/android.hardware.security.sharedsecret-V1-ndk_platform.so;
+# sm84xx-common's twrp/recovery/root is copied AFTER ours (deferred inherit-product
+# appends $(COMMON_PATH)/twrp last in TARGET_RECOVERY_DEVICE_DIRS), so its outdated
+# keymint .rc overwrites our fixed one. Re-copy ours at recipe time (runs after the
+# recovery-root copy) so the keymint HAL starts with rkp-V3 LD_PRELOAD and decryption works.
+BOARD_RECOVERY_IMAGE_PREPARE += cp -f $(DEVICE_PATH)/recovery/root/vendor/etc/init/android.hardware.security.keymint-service-qti.rc $(TARGET_RECOVERY_ROOT_OUT)/vendor/etc/init/android.hardware.security.keymint-service-qti.rc;
 #
