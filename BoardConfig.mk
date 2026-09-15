@@ -81,4 +81,6 @@ BOARD_RECOVERY_IMAGE_PREPARE += mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/system/lib6
 # keymint .rc overwrites our fixed one. Re-copy ours at recipe time (runs after the
 # recovery-root copy) so the keymint HAL starts with rkp-V3 LD_PRELOAD and decryption works.
 BOARD_RECOVERY_IMAGE_PREPARE += cp -f $(DEVICE_PATH)/recovery/root/vendor/etc/init/android.hardware.security.keymint-service-qti.rc $(TARGET_RECOVERY_ROOT_OUT)/vendor/etc/init/android.hardware.security.keymint-service-qti.rc;
+
+TW_POST_DECRYPT_MODULES := "cnss_prealloc.ko cnss_nl.ko wlan_firmware_service.ko cnss_utils.ko icnss2.ko rmnet_perf.ko rmnet_shs.ko rmnet_aps.ko rmnet_offload.ko rmnet_perf_tether.ko rmnet_wlan.ko rmnet_core.ko rmnet_ctl.ko cfg80211.ko gsim.ko ipam.ko qca_cld3_adrastea.ko"
 #
