@@ -21,14 +21,14 @@
 # include (not inherit-product) the common settings - works better with device-specific files
 -include $(COMMON_PATH)/device-common.mk
 
-TW_DEFAULT_LANGUAGE     := en
-TW_USE_TOOLBOX          := true
-TW_INCLUDE_NTFS_3G      := true
-TW_INCLUDE_REPACKTOOLS  := true
-TW_INCLUDE_LIBRESETPROP := true
-TW_EXTRA_LANGUAGES      := true
-TW_EXCLUDE_APEX         := true
-TW_INCLUDE_FASTBOOTD    := true
+AERA_DEFAULT_LANGUAGE     := en
+AERA_USE_TOOLBOX          := true
+AERA_INCLUDE_NTFS_3G      := true
+AERA_INCLUDE_REPACKTOOLS  := true
+AERA_INCLUDE_LIBRESETPROP := true
+AERA_EXTRA_LANGUAGES      := true
+AERA_EXCLUDE_APEX         := true
+AERA_INCLUDE_FASTBOOTD    := true
 
 # OEM otacert
 PRODUCT_EXTRA_RECOVERY_KEYS += \
@@ -52,10 +52,22 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(call find-copy-subdir-files,*,$(DEVICE_PATH)/recovery/root/,$(TARGET_COPY_OUT_RECOVERY)/root/)
 
-# some OrangeFox-specific settings
-$(call inherit-product, $(DEVICE_PATH)/fox_garnet.mk)
+# AERA-specific settings
+$(call inherit-product, $(DEVICE_PATH)/aera_garnet.mk)
 
 # modules
 PRODUCT_PACKAGES += \
+    aera-audio-bridge \
+    aera-browser-jail \
     garnet_modules
+
+# Garnet's Adreno 710 userspace and allocator are bundled from the matching
+# stock dump. AERA retains its software-rendering fallback if initialization
+# fails on a different firmware revision.
+PRODUCT_VENDOR_PROPERTIES += \
+    ro.hardware.egl=adreno \
+    vendor.gralloc.disable_ubwc=0
+
+PRODUCT_SOONG_NAMESPACES += \
+    $(DEVICE_PATH)
 #

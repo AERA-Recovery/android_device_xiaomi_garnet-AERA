@@ -18,78 +18,59 @@
 # 	Please maintain this if you use this script or any part of it
 #
 
-#set -o xtrace
 FDEVICE="garnet"
-THIS_DEVICE=${BASH_ARGV[2]}
 
-fetch_sm84xx_common_repo() {
-	local URL=git@gitlab.com:OrangeFox/device/sm84xx-common.git;
-	local common=device/xiaomi/sm84xx-common;
-
-	if [ ! -d $common ]; then
-		echo "Cloning $URL ... to $common";
-		git clone $URL -b fox_16.0 $common;
-	else
-		local here=$PWD;
-		echo "Device common repository: \"$common\" found. Seeing whether there are updates ...";
-		#cd $common && git pull;
-		cd $common;
-		git pull $URL fox_16.0;
-		cd $here;
+aera_get_target_device() {
+	local script_path
+	script_path="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+	if echo "$script_path" | grep -q "/$FDEVICE$"; then
+		AERA_BUILD_DEVICE="$FDEVICE"
+	elif echo "$0" | grep -q "$FDEVICE"; then
+		AERA_BUILD_DEVICE="$FDEVICE"
 	fi
 }
 
-fox_get_target_device() {
-  if echo "$BASH_SOURCE" | grep -q "/$FDEVICE/"; then
-      FOX_BUILD_DEVICE="$FDEVICE";
-  elif set | grep BASH_ARGV | grep -w \"$FDEVICE\"; then
-      FOX_BUILD_DEVICE="$FDEVICE";
-  elif echo "${BASH_SOURCE[0]}" | grep -q "/$FDEVICE/"; then
-      FOX_BUILD_DEVICE="$FDEVICE";
-  elif echo "$0" | grep -q "$FDEVICE"; then
-      FOX_BUILD_DEVICE="$FDEVICE";
-  fi
-}
-
-if [ -z "$1" -a -z "$FOX_BUILD_DEVICE" ]; then
-   fox_get_target_device
+if [ -z "$AERA_BUILD_DEVICE" ]; then
+	aera_get_target_device
 fi
 
-if [ "$1" = "$FDEVICE" -o "$FOX_BUILD_DEVICE" = "$FDEVICE" ]; then
-	if [ -z "$THIS_DEVICE" ]; then
-		echo "ERROR! This script requires bash. Run '/bin/bash' and build again."
-		exit 1
-	fi
+if [ "$1" = "$FDEVICE" ] || [ "$AERA_BUILD_DEVICE" = "$FDEVICE" ]; then
+	export LC_ALL="C"
+	export AERA_AB_DEVICE=1
+	export AERA_VIRTUAL_AB_DEVICE=1
+	export AERA_VANILLA_BUILD=1
+	export AERA_PRODUCT_PREFIX=AERA
+	export AERA_RECOVERY_SYSTEM_PARTITION="/dev/block/mapper/system"
+	export AERA_RECOVERY_VENDOR_PARTITION="/dev/block/mapper/vendor"
 
-	# sm84xx-common
-	fetch_sm84xx_common_repo;
+	export AERA_USE_BASH_SHELL=1
+	export AERA_USE_TAR_BINARY=1
+	export AERA_USE_SED_BINARY=1
+	export AERA_USE_LZ4_BINARY=1
+	export AERA_USE_ZSTD_BINARY=1
+	export AERA_USE_DATE_BINARY=1
+	export AERA_USE_GREP_BINARY=1
+	export AERA_USE_BUSYBOX_BINARY=1
+	export AERA_USE_XZ_UTILS=1
+	export AERA_USE_NANO_EDITOR=1
+	export AERA_DELETE_AROMAFM=1
+	export AERA_DELETE_MAGISK_ADDON=1
+	export AERA_USE_UPDATED_MAGISKBOOT=1
+	export AERA_USE_FSCK_EROFS_BINARY=1
+	export AERA_USE_PATCHELF_BINARY=1
 
-	export FOX_VIRTUAL_AB_DEVICE=1
-        export FOX_VANILLA_BUILD=1
-    	export FOX_ENABLE_APP_MANAGER=1
-	export FOX_RECOVERY_SYSTEM_PARTITION="/dev/block/mapper/system"
-	export FOX_RECOVERY_VENDOR_PARTITION="/dev/block/mapper/vendor"
-	export FOX_USE_BASH_SHELL=1
-	export FOX_ASH_IS_BASH=1
-	export FOX_USE_TAR_BINARY=1
-	export FOX_USE_LZ4_BINARY=1
-	export FOX_USE_SED_BINARY=1
-	export FOX_USE_XZ_UTILS=1
-	export FOX_USE_ZSTD_BINARY=1
-	export FOX_USE_NANO_EDITOR=1
-    	export FOX_DELETE_AROMAFM=1
-	export FOX_USE_DATE_BINARY=1
-	export FOX_USE_BUSYBOX_BINARY=1
-	export FOX_SETTINGS_ROOT_DIRECTORY=/data/recovery
-	export FOX_MISCELLANEOUS_ROOT_DIRECTORY=/sdcard
+	export AERA_SETTINGS_ROOT_DIRECTORY=/data/recovery
+	export AERA_MISCELLANEOUS_ROOT_DIRECTORY=/sdcard
+	export AERA_ALLOW_EARLY_SETTINGS_LOAD=1
 
-	# KSU, etc.
-	export FOX_ENABLE_KERNELSU_SUPPORT=1
-	export FOX_ENABLE_KERNELSU_NEXT_SUPPORT=1
-	export FOX_ENABLE_SUKISU_SUPPORT=1
-else
-	if [ -z "$FOX_BUILD_DEVICE" -a -z "$BASH_SOURCE" ]; then
-		echo "I: This script requires bash. Not processing the $FDEVICE $(basename $0)"
-	fi
+	export TARGET_DEVICE_ALT="22101316C,22101316G,22101316I,23090RA98C,23090RA98G,23090RA98I"
+	export AERA_TARGET_DEVICES="$TARGET_DEVICE_ALT"
+	export AERA_ENABLE_KERNELSU_SUPPORT=1
+	export AERA_ENABLE_KERNELSU_NEXT_SUPPORT=1
+	export AERA_ENABLE_SUKISU_SUPPORT=1
+
+	# AERA begins at R1.0; do not append legacy variant or patch suffixes.
+	unset AERA_VARIANT
+	unset AERA_MAINTAINER_PATCH_VERSION
 fi
 #

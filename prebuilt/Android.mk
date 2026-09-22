@@ -8,6 +8,8 @@ include $(CLEAR_VARS)
     LOCAL_POST_INSTALL_CMD += \
         mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/vendor; \
         cp -rf $(LOCAL_PATH)/vendor $(TARGET_RECOVERY_ROOT_OUT)/; \
+        rm -f $(TARGET_RECOVERY_ROOT_OUT)/vendor/lib/modules/1.1/camera.ko; \
+        sed -i '/camera\.ko/d' $(TARGET_RECOVERY_ROOT_OUT)/vendor/lib/modules/1.1/modules.load; \
         echo "Running depmod on garnet_modules"; \
         $(DEPMOD) -b $(TARGET_RECOVERY_ROOT_OUT)/vendor 1.1;
 include $(BUILD_PHONY_PACKAGE)

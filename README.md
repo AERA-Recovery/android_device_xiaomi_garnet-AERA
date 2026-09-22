@@ -1,5 +1,5 @@
 ## Xiaomi Redmi Note 13 Pro 5G / POCO X6 5G (_garnet_)
-## OrangeFox device tree
+## AERA Recovery device tree
 
 ## Device specifications
 
@@ -36,12 +36,12 @@ Works:
 
 ## Building
 
-You can find a full compile guide for OrangeFox [Here](https://wiki.orangefox.tech/en/dev/building)
-
-_Lunch_ command :
+Sync the AERA sources and the `device/xiaomi/sm84xx-common` dependency, then run:
 
 ```
-lunch twrp_garnet-eng && mka adbd recoveryimage
+source build/envsetup.sh
+lunch twrp_garnet-bp2a-eng
+mka recoveryimage
 ```
 
 ## Credits

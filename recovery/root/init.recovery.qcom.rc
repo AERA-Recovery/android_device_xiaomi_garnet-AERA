@@ -30,6 +30,62 @@ import /init.recovery.qcom_decrypt.rc
 
 import /init.recovery.wifi.rc
 
+on early-init
+    # Start Garnet's ABI-matched HIDL allocator before AERA creates EGL
+    # surfaces. Its mapper implementation remains passthrough.
+    start aera-graphics-allocator
+
+service aera-graphics-allocator /vendor/bin/hw/vendor.qti.hardware.display.allocator-service
+    class hal
+    seclabel u:r:recovery:s0
+    user root
+    group root graphics
+    capabilities SYS_NICE
+
+service aera-pd-mapper /vendor/bin/aera-pd-mapper
+    class core
+    disabled
+    seclabel u:r:recovery:s0
+    user system
+    group system
+    setenv LD_LIBRARY_PATH /vendor/aera-audio-abi:/vendor/aera-stock-lib64:/vendor/lib64:/system/lib64
+
+service aera-dspservice /vendor/bin/aera-dspservice
+    class hal
+    disabled
+    seclabel u:r:recovery:s0
+    user system
+    group system wakelock oem_2908
+    capabilities BLOCK_SUSPEND
+    setenv LD_LIBRARY_PATH /vendor/aera-audio-abi:/vendor/aera-stock-lib64:/vendor/lib64:/system/lib64
+    interface vendor.qti.hardware.dsp@1.0::IDspService dspservice
+
+service aera-audioadsprpcd /vendor/bin/aera-audioadsprpcd audiopd
+    class main
+    disabled
+    seclabel u:r:recovery:s0
+    user media
+    group media
+    setenv LD_LIBRARY_PATH /vendor/aera-audio-abi:/vendor/aera-stock-lib64:/vendor/lib64:/system/lib64
+
+service aera-agm-service /vendor/bin/hw/aera-agm-service
+    class hal
+    disabled
+    seclabel u:r:recovery:s0
+    user root
+    group root system audio media mediadrm wakelock
+    capabilities BLOCK_SUSPEND SYS_NICE
+    setenv LD_LIBRARY_PATH /vendor/aera-audio-abi:/vendor/aera-stock-lib64:/vendor/lib64:/system/lib64
+    interface vendor.qti.hardware.AGMIPC@1.0::IAGM default
+
+service aera-audio-bootstrap /system/bin/aera-audio-bootstrap
+    class core
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+    user root
+    group root system audio media wakelock
+
 service setup-wlan-script /system/bin/setup_wlan.sh
     user root
     group root
@@ -77,4 +133,9 @@ on property:twrp.modules.loaded=true
 
 #    start vibratorfeature-hal-service
     umount /firmware
+
+# Keep audio off the boot/decryption critical path. The bridge mounts the
+# installed, slot-matched stock runtime read-only after storage is available.
+on property:post.decrypt.modules=true
+    start aera-audio-bootstrap
 #

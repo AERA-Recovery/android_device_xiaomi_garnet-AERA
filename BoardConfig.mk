@@ -31,29 +31,30 @@
 # Recovery
 TARGET_OTA_ASSERT_DEVICE := garnet
 
-# TWRP specific build flags
-TW_FRAMERATE := 120
+# AERA UI
+AERA_FRAMERATE := 120
+AERA_UI2_ADAPTIVE_RESOLUTION := true
 
 # Vibrator
 ifeq ($(FIXED_HAPTICS),1)
-  TW_SUPPORT_INPUT_AIDL_HAPTICS := true
-  TW_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
-  TW_SUPPORT_INPUT_AIDL_HAPTICS_FQNAME := "IVibrator/vibratorfeature"
+  AERA_SUPPORT_INPUT_AIDL_HAPTICS := true
+  AERA_SUPPORT_INPUT_AIDL_HAPTICS_FIX_OFF := true
+  AERA_SUPPORT_INPUT_AIDL_HAPTICS_FQNAME := "IVibrator/vibratorfeature"
 else
-   TW_NO_HAPTICS := true
+  AERA_NO_HAPTICS := true
 endif
 
 TARGET_RECOVERY_DEVICE_MODULES += libexpat
 RECOVERY_LIBRARY_SOURCE_FILES += $(TARGET_OUT_SHARED_LIBRARIES)/libexpat.so
 
 # default brightness
-TW_DEFAULT_BRIGHTNESS := 1023
+AERA_DEFAULT_BRIGHTNESS := 1023
 
 # max brightness
-TW_MAX_BRIGHTNESS := 3071
+AERA_MAX_BRIGHTNESS := 3071
 
 # enable screen blanking (disable this if some touch panels misbehave)
-TW_NO_SCREEN_BLANK := true
+AERA_NO_SCREEN_BLANK := true
 
 # device-specific system/vendor props
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
@@ -71,7 +72,7 @@ BOARD_USES_QCOM_HARDWARE := true
 
 BOARD_USES_GENERIC_KERNEL_IMAGE := true
 
-TW_USE_LEGACY_BATTERY_SERVICES := true
+AERA_USE_LEGACY_BATTERY_SERVICES := true
 
 TARGET_RECOVERY_DEVICE_MODULES += android.hardware.security.keymint-V1-ndk
 RECOVERY_LIBRARY_SOURCE_FILES += $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.security.keymint-V1-ndk.so
@@ -82,5 +83,10 @@ BOARD_RECOVERY_IMAGE_PREPARE += mkdir -p $(TARGET_RECOVERY_ROOT_OUT)/system/lib6
 # recovery-root copy) so the keymint HAL starts with rkp-V3 LD_PRELOAD and decryption works.
 BOARD_RECOVERY_IMAGE_PREPARE += cp -f $(DEVICE_PATH)/recovery/root/vendor/etc/init/android.hardware.security.keymint-service-qti.rc $(TARGET_RECOVERY_ROOT_OUT)/vendor/etc/init/android.hardware.security.keymint-service-qti.rc;
 
-TW_POST_DECRYPT_MODULES := "cnss_prealloc.ko cnss_nl.ko wlan_firmware_service.ko cnss_utils.ko icnss2.ko rmnet_perf.ko rmnet_shs.ko rmnet_aps.ko rmnet_offload.ko rmnet_perf_tether.ko rmnet_wlan.ko rmnet_core.ko rmnet_ctl.ko cfg80211.ko gsim.ko ipam.ko qca_cld3_adrastea.ko"
+AERA_POST_DECRYPT_MODULES := "cnss_prealloc.ko cnss_nl.ko wlan_firmware_service.ko cnss_utils.ko icnss2.ko rmnet_perf.ko rmnet_shs.ko rmnet_aps.ko rmnet_offload.ko rmnet_perf_tether.ko rmnet_wlan.ko rmnet_core.ko rmnet_ctl.ko cfg80211.ko gsim.ko ipam.ko qca_cld3_adrastea.ko"
+
+# Kernel-matched Garnet module set. Keep the audio sequence aligned with the
+# stock modules.load so the machine card and speaker codec probe reliably.
+AERA_LOAD_VENDOR_MODULES := "rproc_qcom_common.ko qcom_q6v5.ko qcom_q6v5_pas.ko qcom_esoc.ko qcom_sysmon.ko qcom_smd.ko qcom_glink_smem.ko qcom_glink.ko pdr_interface.ko qmi_helpers.ko q6_notifier_dlkm.ko spf_core_dlkm.ko audpkt_ion_dlkm.ko gpr_dlkm.ko audio_pkt_dlkm.ko q6_dlkm.ko adsp_loader_dlkm.ko audio_prm_dlkm.ko q6_pdr_dlkm.ko pinctrl_lpi_dlkm.ko swr_dlkm.ko swr_ctrl_dlkm.ko snd_event_dlkm.ko wcd_core_dlkm.ko mbhc_dlkm.ko swr_dmic_dlkm.ko wcd9xxx_dlkm.ko swr_haptics_dlkm.ko stub_dlkm.ko wsa881x_dlkm.ko machine_dlkm.ko lpass_cdc_wsa2_macro_dlkm.ko lpass_cdc_wsa_macro_dlkm.ko lpass_cdc_va_macro_dlkm.ko lpass_cdc_rx_macro_dlkm.ko lpass_cdc_tx_macro_dlkm.ko lpass_cdc_dlkm.ko wsa883x_dlkm.ko wcd938x_dlkm.ko wcd938x_slave_dlkm.ko cs35l43_dlkm.ko aw882xx_dlkm.ko fs19xx_dlkm.ko wcd937x_dlkm.ko wcd937x_slave_dlkm.ko hdmi_dlkm.ko frpc-adsprpc.ko leds-qpnp-vibrator-ldo.ko qcom-hv-haptics.ko qti_battery_charger_main.ko xiaomi_touch.ko goodix_core.ko goodix_fod.ko goodix_health.ko focaltech_fts.ko focaltech_touch.ko cnss_prealloc.ko cnss_utils.ko cnss_nl.ko mi_cnss_statistic.ko cnss_plat_ipc_qmi_svc.ko wlan_firmware_service.ko cnss2.ko qca_cld3_qca6490.ko msm_kgsl.ko"
+AERA_LOAD_VENDOR_MODULES_EXCLUDE_GKI := true
 #

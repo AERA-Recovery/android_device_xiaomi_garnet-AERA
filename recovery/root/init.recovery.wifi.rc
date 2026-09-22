@@ -1,9 +1,9 @@
-# OrangeFox WLAN for QCA6490 (sm84xx / mondrian)
+# AERA WLAN for QCA6490 (sm84xx / garnet)
 #
 # IMPORTANT: nothing here runs at boot. The cnss2 / qca_cld3 modules are loaded
-# by the OrangeFox module loader and then sit idle ("deferred for calibration").
+# by the AERA module loader and then sit idle ("deferred for calibration").
 #
-# When the user taps "Start WLAN", OrangeFox sets sys.fox.wlan.up=1 (see
+# When the user taps "Start WLAN", AERA sets sys.aera.wlan.up=1 (see
 # Wlan::StartInitSupplicantService). That fires the on-block below, which brings
 # up the WLAN driver on demand and then starts the real wpa_supplicant service.
 # Doing the bring-up on demand instead of during init keeps it off the
@@ -27,11 +27,11 @@ on property:post.decrypt.modules=true
 
 # ----------------------
 #on property:post.decrypt.modules=true
-#    setprop sys.fox.wlan.up 0
+#    setprop sys.aera.wlan.up 0
 #    write /dev/kmsg "[wlan] booting wpss"
 #    write /sys/kernel/icnss/wlan_en_delay 1000
 #    write /sys/kernel/icnss/wpss_boot 1
-#    start fox-wlan-ready
+#    start aera-wlan-ready
 #
 #on property:wifi.driver.ready=true
 #    write /dev/kmsg "[wlan] readying wpa_supplicant"
@@ -40,7 +40,7 @@ on property:post.decrypt.modules=true
 #    start wpa_supplicant
 # ----------------------
 
-on property:sys.fox.wlan.up=1
+on property:sys.aera.wlan.up=1
     # wpa_supplicant's Android ctrl_iface refuses a non-accessible control dir
     # and crash-loops, so force the socket dir world-accessible (init's
     # restrictive umask would otherwise leave it 0700).
@@ -62,13 +62,13 @@ on property:sys.fox.wlan.up=1
     start wpa_supplicant
 
     # Reset so the next tap is a fresh 0->1 transition that re-fires this block.
-    setprop sys.fox.wlan.up 0
+    setprop sys.aera.wlan.up 0
 
 service wpa_supplicant /system/bin/wpa_supplicant -Dnl80211 -iwlan0 -dd -O/tmp/recovery/sockets -c/vendor/etc/wifi/wpa_supplicant.conf
     disabled
     seclabel u:r:recovery:s0
 
-service fox-wlan-ready /system/bin/sh -c "until test -e /sys/class/net/wlan0; do sleep 1; done; setprop wifi.driver.ready true"
+service aera-wlan-ready /system/bin/sh -c "until test -e /sys/class/net/wlan0; do sleep 1; done; setprop wifi.driver.ready true"
     disabled
     oneshot
     user root
