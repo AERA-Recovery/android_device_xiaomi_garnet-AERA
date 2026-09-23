@@ -40,6 +40,8 @@ if [ "$1" = "$FDEVICE" ] || [ "$AERA_BUILD_DEVICE" = "$FDEVICE" ]; then
 	export AERA_VIRTUAL_AB_DEVICE=1
 	export AERA_VANILLA_BUILD=1
 	export AERA_PRODUCT_PREFIX=AERA
+	export AERA_BUILD_STATUS=Official
+	export AERA_BUILD_TYPE=Beta
 	export AERA_RECOVERY_SYSTEM_PARTITION="/dev/block/mapper/system"
 	export AERA_RECOVERY_VENDOR_PARTITION="/dev/block/mapper/vendor"
 
