@@ -14,10 +14,17 @@ audio_abi=/vendor/aera-audio-abi
 lock=${stock_root}/.audio-lock
 slot_suffix="$(getprop ro.boot.slot_suffix)"
 
-fail() {
+stage() {
+    echo "AERA-Audio: garnet: $*" > /dev/kmsg 2>/dev/null
     echo "AERA audio: $*" >&2
+}
+
+fail() {
+    stage "FAILED: $*"
     exit 1
 }
+
+stage "bootstrap starting"
 
 case "$(getprop ro.product.device)" in
     garnet) ;;
@@ -72,6 +79,7 @@ mount_read_only() {
 mount_read_only vendor "${vendor_root}" || fail "could not mount stock vendor"
 mount_read_only system "${system_root}" || fail "could not mount stock system"
 mount_read_only odm /odm || fail "could not mount stock odm"
+stage "stock vendor, system and odm mounted"
 
 # The dedicated slot-matched DSP partition carries AudioPD modules. Android
 # mounts it before audioadsprpcd starts and exposes the legacy /dsp alias.
@@ -85,6 +93,7 @@ if ! grep -q ' /vendor/dsp ' /proc/mounts; then
 fi
 [ -e /dsp ] || ln -s /vendor/dsp /dsp || \
     fail "could not expose the stock /dsp path"
+stage "DSP partition exposed"
 
 # Qualcomm's audio processes are built against the framework Binder ABI from
 # the installed Garnet system. Recovery's Binder libraries are close enough to
@@ -136,6 +145,7 @@ if ! grep -q ' /vendor/firmware_mnt ' /proc/mounts; then
     mount -o bind /firmware /vendor/firmware_mnt || \
         fail "could not expose ADSP firmware to stock vendor"
 fi
+stage "ADSP firmware exposed"
 
 # AGM's proprietary libraries use these fixed Android paths. Bind only their
 # calibration database into the recovery vendor tree; never overlay /vendor.
@@ -155,6 +165,7 @@ for config in card-defs.xml backend_conf.xml usecaseKvManager.xml; do
     [ -f "${source_config}" ] && \
         bind_file_read_only "${source_config}" "${target_config}"
 done
+stage "stock audio ABI and configuration ready"
 
 mkdir -p /data/vendor/audio/acdbdata/delta /data/vendor/audio_dsp
 
@@ -182,18 +193,20 @@ start_init_service() {
 start_init_service aera-pd-mapper required
 start_init_service aera-dspservice required
 start_init_service aera-audioadsprpcd required
+stage "DSP services running; waiting for the machine sound card"
 
 attempt=0
 # card 100 is tinyalsa's virtual AGM plugin id; the kernel machine card itself
 # is allocated a normal ALSA index (normally controlC0).
-while [ ! -e /dev/snd/controlC0 ] && [ "${attempt}" -lt 200 ]; do
+while [ ! -e /dev/snd/controlC0 ] && [ "${attempt}" -lt 300 ]; do
     attempt=$((attempt + 1))
     sleep 0.1
 done
 [ -e /dev/snd/controlC0 ] || fail "the Qualcomm machine sound card did not register"
+stage "machine sound card registered"
 
 # The init service owns the stock-library environment. Do not export it here:
 # recovery's toolbox/getprop/setprop require AERA's matching system libraries.
 start_init_service aera-agm-service required
 
-echo "AERA audio: Garnet AGM backend is ready"
+stage "AGM backend ready"

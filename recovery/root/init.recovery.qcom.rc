@@ -102,6 +102,7 @@ service unified-script /system/bin/unified-script.sh
 
 on init
     start boot-hal-1-2
+    start health-hal-2-1
 
 on fs
     export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw:/system_ext/lib64
@@ -134,8 +135,8 @@ on property:twrp.modules.loaded=true
 #    start vibratorfeature-hal-service
     umount /firmware
 
-# Keep audio off the boot/decryption critical path. The bridge mounts the
-# installed, slot-matched stock runtime read-only after storage is available.
-on property:post.decrypt.modules=true
+    # Garnet's SPF probe waits only briefly for AudioPD/APM. Start the
+    # slot-matched stock audio runtime as soon as its kernel modules exist;
+    # waiting until user-data decryption is too late for the machine card.
     start aera-audio-bootstrap
 #
